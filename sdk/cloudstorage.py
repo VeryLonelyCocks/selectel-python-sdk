@@ -53,6 +53,18 @@ class CloudStorage(API):
 
         return result
 
+    def containers_list(self):
+        url = self.storage_url
+        response = self.request(url,
+                                headers={
+                                    'X-Auth-Token': self.auth_token
+                                },
+                                params={
+                                    'format': 'json'
+                                })
+
+        return response.json()
+
     def new_container(self, name, type='private'):
         url = self.storage_url + '/' + name
 
@@ -136,7 +148,7 @@ class CloudStorage(API):
 
         response = self.request(url, headers=headers)
 
-        return response.raw
+        return response.content
 
     def upload(self, container, file_name, file, expire_time=None, delete_after=None):
 
@@ -152,7 +164,7 @@ class CloudStorage(API):
             headers['X-Delete-After'] = delete_after
 
         files = {
-            'file': open(file, 'rb')
+            'file': file
         }
 
         self.request(url, headers=headers, files=files, method='PUT')
