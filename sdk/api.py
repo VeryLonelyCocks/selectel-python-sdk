@@ -4,6 +4,7 @@ import requests
 class API:
     CS_URL = 'https://api.selcdn.ru/'
     VPC_URL = 'https://api.selectel.ru/vpc/resell/v2/'
+    AP_URL = 'https://my.selectel.ru/api/'
 
     def request(self, url, headers=None, params=None, method='GET', files=None):
 
