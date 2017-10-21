@@ -2,6 +2,7 @@ from .api import API
 
 
 class VirtualPrivateCloud(API):
+
     def __init__(self, token):
         self._token = token
 
@@ -15,7 +16,7 @@ class VirtualPrivateCloud(API):
         return response
 
     def get_list_projects(self):
-        url = self.vpc_URL + "projects"
+        url = self.VPC_URL + "projects"
 
         response = self._send_request(url)
 
@@ -24,49 +25,49 @@ class VirtualPrivateCloud(API):
         return list_projects
 
     def get_configuration_about_project(self, project_id):
-        url = self.vpc_URL + "projects/" + str(project_id)
+        url = self.VPC_URL + "projects/" + str(project_id)
 
         response = self._send_request(url)
 
         return response.json()
 
     def get_quotas(self):
-        url = self.vpc_URL + "quotas"
+        url = self.VPC_URL + "quotas"
 
         response = self._send_request(url)
 
         return response.json()
 
     def get_free_quotas(self):
-        url = self.vpc_URL + "quotas/free"
+        url = self.VPC_URL + "quotas/free"
 
         response = self._send_request(url)
 
         return response.json()
 
     def get_quotas_for_all_projects(self):
-        url = self.vpc_URL + "quotas/projects"
+        url = self.VPC_URL + "quotas/projects"
 
         response = self._send_request(url)
 
         return response.json()
 
     def get_quotas_for_project(self, project_id):
-        url = self.vpc_URL + "quotas/projects/" + str(project_id)
+        url = self.VPC_URL + "quotas/projects/" + str(project_id)
 
         response = self._send_request(url)
 
         return response.json()
 
     def get_traffic(self):
-        url = self.vpc_URL + "traffic"
+        url = self.VPC_URL + "traffic"
 
         response = self._send_request(url)
 
         return response.json()
 
     def get_users(self):
-        url = self.vpc_URL + "users"
+        url = self.VPC_URL + "users"
 
         response = self._send_request(url)
 
