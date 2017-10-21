@@ -13,7 +13,7 @@ class CloudStorage(API):
         self.storage_url = storage_url
         
     def auth(self, user, password):
-        url = self.URL + 'auth/v1.0'
+        url = self.CS_URL + 'auth/v1.0'
 
         headers = {
             'X-Auth-User': str(user),
