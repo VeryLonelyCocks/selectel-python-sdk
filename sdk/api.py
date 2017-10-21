@@ -6,11 +6,11 @@ class API:
     VPC_URL = 'https://api.selectel.ru/vpc/resell/v2/'
     AP_URL = 'https://my.selectel.ru/api/'
 
-    def request(self, url, headers=None, params=None, method='GET', files=None):
+    def request(self, url, headers=None, params=None, method='GET', files=None, stream=False):
 
         if headers is None:
             headers = {}
         if params is None:
             params = {}
 
-        return requests.request(method, url, headers=headers, params=params, files=files)
+        return requests.request(method, url, headers=headers, params=params, files=files, stream=stream)

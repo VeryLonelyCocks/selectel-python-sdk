@@ -1,9 +1,14 @@
+import uuid
+
 from .api import API
 
 
 class CloudStorage(API):
 
     def __init__(self, user, password=None):
+
+        self.authorized = False
+
         if password is not None:
             self.auth(user, password)
         else:
@@ -22,13 +27,18 @@ class CloudStorage(API):
 
         response = self.request(url, headers=headers)
 
+        if response.status_code == 403:
+            self.authorized = False
+        else:
+            self.authorized = True
+
         response_headers = response.headers
 
         result = {
-            'storage_token': response_headers['x-storage-token'],
-            'auth_token_expire': response_headers['x-expire-auth-token'],
-            'auth_token': response_headers['x-auth-token'],
-            'storage_url': response_headers['x-storage-url']
+            'storage_token': response_headers.get('x-storage-token', None),
+            'auth_token_expire': response_headers.get('x-expire-auth-token', None),
+            'auth_token': response_headers.get('x-auth-token', None),
+            'storage_url': response_headers.get('x-storage-url', None),
         }
 
         self.storage_url = result['storage_url']
@@ -55,13 +65,15 @@ class CloudStorage(API):
 
     def containers_list(self):
         url = self.storage_url
-        response = self.request(url,
-                                headers={
-                                    'X-Auth-Token': self.auth_token
-                                },
-                                params={
-                                    'format': 'json'
-                                })
+        response = self.request(
+            url,
+            headers={
+                'X-Auth-Token': self.auth_token
+            },
+            params={
+                'format': 'json'
+            }
+        )
 
         return response.json()
 
@@ -146,16 +158,27 @@ class CloudStorage(API):
         if type == 'private':
             headers['X-Auth-Token'] = self.auth_token
 
-        response = self.request(url, headers=headers)
+        import urllib3
+        http = urllib3.PoolManager()
+        file = http.request('GET', url, headers=headers)
 
-        return response.content
+        # name = str(uuid.uuid4()) + '.tmp'
+        # handle = open(name, "xb")
+        # for chunk in response.iter_content(chunk_size=512):
+        #     if chunk:  # filter out keep-alive new chunks
+        #         handle.write(chunk)
 
-    def upload(self, container, file_name, file, expire_time=None, delete_after=None):
+        return file.data
+
+    def upload(self, container, file_name, file, content_type, content_length, expire_time=None, delete_after=None):
 
         url = self.storage_url + '/' + container + '/' + file_name
 
         headers = {
-            'X-Auth-Token': self.auth_token
+            'X-Auth-Token': self.auth_token,
+            'X-Detect-Content-Type': 'true',
+            'Content-Type': content_type,
+            'Content-Length': str(content_length)
         }
 
         if expire_time is not None:
@@ -167,7 +190,7 @@ class CloudStorage(API):
             'file': file
         }
 
-        self.request(url, headers=headers, files=files, method='PUT')
+        return self.request(url, headers=headers, files=files, method='PUT')
 
     def delete(self, container, file):
 
