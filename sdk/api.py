@@ -2,7 +2,8 @@ import requests
 
 
 class API:
-    URL = 'https://api.selcdn.ru/'
+    cloud_storage_URL = 'https://api.selcdn.ru/'
+    vpc_URL = 'https://api.selectel.ru/vpc/resell/v2/'
 
     def request(self, url, headers=None, params=None, method='GET', files=None):
 
