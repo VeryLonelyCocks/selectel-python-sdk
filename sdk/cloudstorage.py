@@ -58,7 +58,7 @@ class CloudStorage(API):
         result = {
             'bytes_used': response_headers['x-account-bytes-used'],
             'container_count': response_headers['x-account-container-count'],
-            'object_count': response_headers['x-account-object-count']
+            'object_count': response_headers['x-account-object-count'],
         }
 
         return result
@@ -201,3 +201,14 @@ class CloudStorage(API):
         }
 
         return self.request(url, headers=headers, method='DELETE')
+
+    def set_link_key(self, key):
+
+        url = self.storage_url
+
+        headers = {
+            'X-Auth-Token': self.auth_token,
+            'X-Account-Meta-Temp-URL-Key': key
+        }
+
+        return self.request(url, headers=headers, method='POST')
