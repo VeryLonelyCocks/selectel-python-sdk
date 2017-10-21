@@ -3,9 +3,15 @@ from .api import API
 
 class CloudStorage(API):
 
-    def __init__(self, user, password):
-        self.auth(user, password)
+    def __init__(self, user, password=None):
+        if password is not None:
+            self.auth(user, password)
+        else:
+            self.auth_token = user
 
+    def set_storage_url(self, storage_url):
+        self.storage_url = storage_url
+        
     def auth(self, user, password):
         url = self.URL + 'auth/v1.0'
 
