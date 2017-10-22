@@ -114,12 +114,11 @@ class CloudStorage(API):
             'X-Container-Meta-Type': type
         }, method='POST')
 
-    def delete_container(self, name, type='private'):
+    def delete_container(self, name):
         url = self.storage_url + '/' + name
 
         return self.request(url, headers={
-            'X-Auth-Token': self.auth_token,
-            'X-Container-Meta-Type': type
+            'X-Auth-Token': self.auth_token
         }, method='DELETE')
 
     def get_files(self, container, limit=None, marker=None, prefix=None, path=None, delimiter=None, format='json'):
@@ -158,17 +157,9 @@ class CloudStorage(API):
         if type == 'private':
             headers['X-Auth-Token'] = self.auth_token
 
-        import urllib3
-        http = urllib3.PoolManager()
-        file = http.request('GET', url, headers=headers)
+        response = self.request(url, headers=headers)
 
-        # name = str(uuid.uuid4()) + '.tmp'
-        # handle = open(name, "xb")
-        # for chunk in response.iter_content(chunk_size=512):
-        #     if chunk:  # filter out keep-alive new chunks
-        #         handle.write(chunk)
-
-        return file.data
+        return response.content
 
     def upload(self, container, file_name, file, content_type, content_length, expire_time=None, delete_after=None):
 
