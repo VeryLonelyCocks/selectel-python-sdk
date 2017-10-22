@@ -1,5 +1,7 @@
 import uuid
 
+import io
+
 from .api import API
 
 
@@ -150,38 +152,60 @@ class CloudStorage(API):
 
     def download(self, container, file, type='private'):
 
+        import pycurl
+
         url = self.storage_url + '/' + container + '/' + file
 
-        headers = {}
+        c = pycurl.Curl()
 
-        if type == 'private':
-            headers['X-Auth-Token'] = self.auth_token
+        stream = io.BytesIO()
 
-        response = self.request(url, headers=headers)
+        c.setopt(pycurl.URL, url)
+        c.setopt(pycurl.WRITEDATA, stream)
 
-        return response.content
+        c.setopt(c.HTTPHEADER, [
+            'X-Auth-Token: {}'.format(self.auth_token)
+        ])
+
+        c.perform()
+        code = c.getinfo(pycurl.HTTP_CODE)
+        c.close()
+
+        return stream
+        # if type == 'private':
+        #     headers['X-Auth-Token'] = self.auth_token
+
+        # response = self.request(url, headers=headers)
+
+        # return response.content
 
     def upload(self, container, file_name, file, content_type, content_length, expire_time=None, delete_after=None):
 
+        import pycurl
+
         url = self.storage_url + '/' + container + '/' + file_name
 
-        headers = {
-            'X-Auth-Token': self.auth_token,
-            'X-Detect-Content-Type': 'true',
-            'Content-Type': content_type,
-            'Content-Length': str(content_length)
-        }
+        c = pycurl.Curl()
 
-        if expire_time is not None:
-            headers['X-Delete-At'] = expire_time
-        if expire_time is not None:
-            headers['X-Delete-After'] = delete_after
+        stream = io.BytesIO(file)
 
-        files = {
-            'file': file
-        }
+        c.setopt(pycurl.URL, url)
+        c.setopt(pycurl.UPLOAD, 1)
+        c.setopt(pycurl.INFILESIZE, content_length)
+        c.setopt(pycurl.READDATA, stream)
 
-        return self.request(url, headers=headers, files=files, method='PUT')
+        c.setopt(c.HTTPHEADER, [
+            'X-Auth-Token: {}'.format(self.auth_token),
+            'X-Detect-Content-Type: {}'.format('true'),
+            'Content-Type: {}'.format(content_type),
+            'Content-Length: {}'.format(str(content_length))
+        ])
+
+        c.perform()
+        code = c.getinfo(pycurl.HTTP_CODE)
+
+        c.close()
+        return code
 
     def delete(self, container, file):
 
